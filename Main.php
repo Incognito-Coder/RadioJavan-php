@@ -5,13 +5,9 @@ require 'vendor/autoload.php';
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 
-if (isset($_GET['url'])) {
-    if (str_contains($_GET['url'], 'play.radiojavan.com')) {
-        echo callAPI($_GET['url']);
-    } else {
-        echo callAPI(extractWebUrl($_GET['url']));
-    }
-}
+/* if (isset($_GET['url'])) {
+    echo prettier(fetch($_GET['url']));
+} */
 
 function callAPI($url)
 {
@@ -45,6 +41,21 @@ function extractWebUrl($url)
     $res = $client->send($request);
     preg_match('/<meta property="og:url" content="(.*?)" \/>/', $res->getBody(), $matches);
     return $matches[1];
+}
+function fetch($url)
+{
+    if (str_contains($url, 'play.radiojavan.com')) {
+        return callAPI($url);
+    } else {
+        return callAPI(extractWebUrl($url));
+    }
+}
+function prettier($string)
+{
+    $response = json_decode($string);
+    if ($response->type = 'mp3') {
+        return json_encode(['status' => true, 'type' => 'music', 'result' => $response->link, 'title' => $response->title, 'photo' => $response->photo], 128);
+    }
 }
 
 /*
