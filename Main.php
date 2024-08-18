@@ -5,10 +5,6 @@ require 'vendor/autoload.php';
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 
-/* if (isset($_GET['url'])) {
-    echo prettier(fetch($_GET['url']));
-} */
-
 function callAPI($url)
 {
     $client = new Client();
@@ -22,7 +18,7 @@ function callAPI($url)
     ];
     $query = parse_url($url, PHP_URL_PATH);
     $path = explode('/', $query);
-    $request = new Request('GET', 'https://play.radiojavan.com/api/p/mp3?id=' . $path[2], $headers);
+    $request = new Request('GET', 'https://play.radiojavan.com/api/p/' . type($url) . '?id=' . $path[2], $headers);
     $res = $client->send($request);
     return $res->getBody();
 }
@@ -55,9 +51,26 @@ function prettier($string)
     $response = json_decode($string);
     if ($response->type = 'mp3') {
         return json_encode(['status' => true, 'type' => 'music', 'result' => $response->link, 'title' => $response->title, 'photo' => $response->photo], 128);
+    } elseif ($response->type = 'video') {
+        return json_encode(['status' => true, 'type' => 'video', 'result' => $response->link, 'title' => $response->title, 'photo' => $response->photo], 128);
+    } elseif ($response->type = 'podcast') {
+        return json_encode(['status' => true, 'type' => 'podcast', 'result' => $response->link, 'title' => $response->title, 'photo' => $response->photo], 128);
+    } else {
+        return json_encode(['status' => false], 128);
     }
 }
-
+function type($url)
+{
+    if (preg_match('/\/\/(.*?)\/(.*?)\//', $url, $matches)) {
+        if ($matches[2] == 'm' || $matches[2] == 'song') {
+            return 'mp3';
+        } elseif ($matches[2] == 'v' || $matches[2] == 'video') {
+            return 'video';
+        } elseif ($matches[2] == 'p' || $matches[2] == 'podcast') {
+            return 'podcast';
+        }
+    }
+}
 /*
 
 Dev : Alireza Ah-Mand
